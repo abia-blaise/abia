@@ -17,7 +17,7 @@ def main():
     
     # Check command-line arguments
     if len(sys.argv) not in [2, 3]:
-        sys.exit("Usage: python traffic.py data_directory [model.h5]")
+        sys.exit("Usage: python traffic.py data_directory [best_model.h5]")
 
     # Get image arrays and labels for all image files
     images, labels = load_data(sys.argv[1])
@@ -43,25 +43,16 @@ def main():
         model.save(filename)
         print(f"Model saved to {filename}.")
 
-    # If a model is saved, you can predict a new image
-    if len(sys.argv) == 3:
-        image_path = "path_to_new_image.jpg"  # Path to the test image
-        predict_sign(model, image_path)
-
 
 def load_data(data_dir):
+    
     """
     Load image data from directory `data_dir`.
-
+    
     Assume `data_dir` has one directory named after each category, numbered
     0 through NUM_CATEGORIES - 1. Inside each category directory will be some
     number of image files.
-
-    Return tuple `(images, labels)`. `images` should be a list of all
-    of the images in the data directory, where each image is formatted as a
-    numpy ndarray with dimensions IMG_WIDTH x IMG_HEIGHT x 3. `labels` should
-    be a list of integer labels, representing the categories for each of the
-    corresponding `images`.
+    Return tuple `(images, labels)`.
     """
     images = []
     labels = []
@@ -86,9 +77,11 @@ def load_data(data_dir):
 
 
 def get_model():
+    
     """
-    Returns a compiled convolutional neural network model. Assume that the
-    `input_shape` of the first layer is `(IMG_WIDTH, IMG_HEIGHT, 3)`.
+    Returns a compiled convolutional neural network model.
+    Assume that the `input_shape` of the first layer is `(IMG_WIDTH,
+    IMG_HEIGHT, 3)`.
     The output layer should have `NUM_CATEGORIES` units, one for each category.
     """
     model = tf.keras.Sequential([
@@ -109,20 +102,6 @@ def get_model():
                   metrics=['accuracy'])
 
     return model
-
-
-def predict_sign(model, image_path):
-    """
-    Predict the class of a traffic sign in a new image.
-    """
-    img = cv2.imread(image_path)
-    img = cv2.resize(img, (IMG_WIDTH, IMG_HEIGHT))
-    img = img / 255.0  # Normalize image pixel values to [0, 1]
-    img = np.expand_dims(img, axis=0)  # Add batch dimension
-
-    prediction = model.predict(img)
-    predicted_class = np.argmax(prediction, axis=1)
-    print(f"Predicted traffic sign class: {predicted_class[0]}")
 
 
 if __name__ == "__main__":
